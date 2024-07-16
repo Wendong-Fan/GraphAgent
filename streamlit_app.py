@@ -32,13 +32,15 @@ environments.
 openai_api_key = st.sidebar.text_input('OpenAI API Key')
 
 def generate_response(input_text):
+    # Model setting
     model = ModelFactory.create(
         model_platform=ModelPlatformType.OPENAI,
         model_type=ModelType.GPT_4O,
         model_config_dict=ChatGPTConfig().__dict__,
         api_key=openai_api_key
     )
-  
+    
+    # Agent setting
     kg_agent = KnowledgeGraphAgent(model=model)
 
     # Create an element from the given text
