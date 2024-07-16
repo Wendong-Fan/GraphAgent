@@ -12,10 +12,14 @@ n4j = Neo4jGraph(
     url="neo4j+s://5af77aab.databases.neo4j.io", username="neo4j", password="SEK_Fx5Bx-BkRwMx6__zM_TOPqXLWEP-czuIZ_u7-zE"
 )
 
-# Set instance
+# Configure Streamlit page
+st.set_page_config(page_title="🐫 KnowledgeGraph Agent App")
+st.title('🐫 KnowledgeGraph Agent App')
+
+# Initialize UnstructuredIO instance
 uio = UnstructuredIO()
 
-# Set example text input
+# Example text input
 text_example = """CAMEL is an open-source library designed for the study of
 autonomous and communicative agents. We believe that studying these agents on
 a large scale offers valuable insights into their behaviors, capabilities, and
@@ -24,36 +28,38 @@ support various types of agents, tasks, prompts, models, and simulated
 environments.
 """
 
-# Create an element from given text
-element_example = uio.create_element_from_text(text=text_example)
-
-
-
-st.set_page_config(page_title="🐫 KnowledgeGraph Agent App")
-st.title('🐫 KnowledgeGraph Agent App')
-
+# Sidebar for API Key input
 openai_api_key = st.sidebar.text_input('OpenAI API Key')
 
 def generate_response(input_text):
-    model=ModelFactory.create(model_platform=ModelPlatformType.OPENAI,
-                          model_type=ModelType.GPT_4O,
-                          model_config_dict=ChatGPTConfig().__dict__,
-                          api_key=openai_api_key)
+    model = ModelFactory.create(
+        model_platform=ModelPlatformType.OPENAI,
+        model_type=ModelType.GPT_4O,
+        model_config_dict=ChatGPTConfig().__dict__,
+        api_key=openai_api_key
+    )
   
     kg_agent = KnowledgeGraphAgent(model=model)
 
-    graph_elements = kg_agent.run(element_example, parse_graph_elements=True)
+    # Create an element from the given text
+    element = uio.create_element_from_text(text=input_text)
 
+    # Run the KnowledgeGraphAgent to generate graph elements
+    graph_elements = kg_agent.run(element, parse_graph_elements=True)
 
-    # Add the element to neo4j database
+    # Add the elements to the Neo4j database
     n4j.add_graph_elements(graph_elements=[graph_elements])
 
+    # Display the response
     st.info(kg_agent.run(input_text))
 
+# Form for user input
 with st.form('my_form'):
-    text = st.text_area('Enter text:', 'What content you would like to make knowledge graph?')
+    text = st.text_area('Enter text:', text_example)
     submitted = st.form_submit_button('Submit')
+    
     if not openai_api_key.startswith('sk-'):
         st.warning('Please enter your OpenAI API key!', icon='⚠')
+    
     if submitted and openai_api_key.startswith('sk-'):
         generate_response(text)
