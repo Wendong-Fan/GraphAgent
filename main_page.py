@@ -7,15 +7,14 @@ from camel.models import ModelFactory
 from camel.loaders import UnstructuredIO
 from camel.configs import ChatGPTConfig
 from camel.storages import Neo4jGraph
+st.markdown("# 🐫 KnowledgeGraph Agent App")
+st.sidebar.markdown("# 🐫 KnowledgeGraph Agent App")
+
 
 # Set Neo4j instance
 n4j = Neo4jGraph(
     url="neo4j+s://5af77aab.databases.neo4j.io", username="neo4j", password="SEK_Fx5Bx-BkRwMx6__zM_TOPqXLWEP-czuIZ_u7-zE"
 )
-
-# Configure Streamlit page
-st.set_page_config(page_title="🐫 KnowledgeGraph Agent App")
-st.title('🐫 KnowledgeGraph Agent App')
 
 # Initialize UnstructuredIO instance
 uio = UnstructuredIO()
@@ -61,7 +60,7 @@ def generate_response(input_text):
 # Form for user input
 with st.form('my_form'):
     
-    uploaded_files = st.file_uploader("Choose a CSV file", accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Choose a PDF file", accept_multiple_files=True)
     for uploaded_file in uploaded_files:
         pdf_reader = PdfReader(uploaded_file)
         text_pdf = ""

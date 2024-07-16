@@ -36,7 +36,7 @@ def generate_response(input_text):
     model = ModelFactory.create(
         model_platform=ModelPlatformType.OPENAI,
         model_type=ModelType.GPT_4O,
-        model_config_dict=ChatGPTConfig().__dict__,
+        model_config_dict=ChatGPTConfig(temperature=0.2).__dict__,
         api_key=openai_api_key
     )
     
