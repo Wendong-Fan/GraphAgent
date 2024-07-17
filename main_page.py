@@ -1,11 +1,10 @@
 import streamlit as st
-from camel.agents import KnowledgeGraphAgent
 from camel.types import ModelPlatformType, ModelType
 from camel.models import ModelFactory
 from camel.loaders import UnstructuredIO
 from camel.configs import ChatGPTConfig
 from camel.storages import Neo4jGraph
-# from kg_agent import KnowledgeGraphAgent
+from kg_agent import KnowledgeGraphAgent
 
 st.markdown("# 🐫 Knowledge Graph Agent")
 st.sidebar.markdown("# 🐫 Knowledge Graph Agent")
