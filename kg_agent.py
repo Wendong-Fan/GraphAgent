@@ -80,6 +80,7 @@ type='Location'), type='ResidesIn')
 Please extracts nodes and relationships from given content and structures them 
 into Node and Relationship objects. 
 
+{task}
 """
 
 
@@ -108,7 +109,7 @@ class KnowledgeGraphAgent(ChatAgent):
             role_type=RoleType.ASSISTANT,
             meta_dict=None,
             content="Your mission is to transform unstructured content "
-            "intostructured graph data. Extract nodes and relationships with "
+            "into structured graph data. Extract nodes and relationships with "
             "precision, and let the connections unfold. Your graphs will "
             "illuminate the hidden connections within the chaos of "
             "information.",
@@ -226,3 +227,50 @@ class KnowledgeGraphAgent(ChatAgent):
                     relationships.append(relationship)
 
         return GraphElement(list(nodes.values()), relationships, self.element)
+
+
+
+
+class InsightAgent(ChatAgent):
+
+    def __init__(
+        self,
+        model: Optional[BaseModelBackend] = None,
+    ) -> None:
+        r"""Initialize the `InsightAgent`.
+
+        Args:
+        model (BaseModelBackend, optional): The model backend to use for
+            generating responses. (default: :obj:`OpenAIModel` with
+            `GPT_3_5_TURBO`)
+        """
+        system_message = BaseMessage(
+            role_name="InsightAgent",
+            role_type=RoleType.ASSISTANT,
+            meta_dict=None,
+            content="Your mission is to answer user's query based on the relationship information provided to you. Your output language should match with the query language, if the query is in Chinses, you should also answer in Chinese",
+        )
+        super().__init__(system_message, model=model)
+
+    def run(
+        self,
+        relationship_info: str,
+        query: str,
+    ) -> str:
+
+        prompt = (
+            f"Based on the realationship information below "
+            f"{relationship_info}). "
+            f"Please answer to my question:"
+            f"{query}). "
+        )
+
+        insight_generation_msg = BaseMessage.make_user_message(
+            role_name="User", content=prompt
+        )
+
+        response = self.step(input_message=insight_generation_msg)
+
+        content = response.msg.content
+
+        return content
