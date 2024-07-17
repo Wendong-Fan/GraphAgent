@@ -5,8 +5,10 @@ from camel.models import ModelFactory
 from camel.loaders import UnstructuredIO
 from camel.configs import ChatGPTConfig
 from camel.storages import Neo4jGraph
-st.markdown("# 🐫 KnowledgeGraph Agent App")
-st.sidebar.markdown("# 🐫 KnowledgeGraph Agent App")
+# from kg_agent import KnowledgeGraphAgent
+
+st.markdown("# 🐫 Knowledge Graph Agent")
+st.sidebar.markdown("# 🐫 Knowledge Graph Agent")
 
 
 # Set Neo4j instance
@@ -80,7 +82,7 @@ def generate_response_from_file(input_element):
 with st.form('my_form'):
     
     uploaded_file = st.file_uploader("Choose a PDF file", accept_multiple_files=False)
-    submitted1 = st.form_submit_button('Submit')
+    submitted1 = st.form_submit_button('Submit File')
 
     if submitted1 and uploaded_file:
         file_path = 'output.pdf'
@@ -89,7 +91,7 @@ with st.form('my_form'):
         elements = UnstructuredIO().parse_file_or_url(input_path="output.pdf")
 
     text = st.text_area('Enter text:', text_example)
-    submitted2 = st.form_submit_button('Submit2')
+    submitted2 = st.form_submit_button('Submit Text')
     
     if not openai_api_key.startswith('sk-'):
         st.warning('Please enter your OpenAI API key!', icon='⚠')

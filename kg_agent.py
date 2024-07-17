@@ -80,7 +80,6 @@ type='Location'), type='ResidesIn')
 Please extracts nodes and relationships from given content and structures them 
 into Node and Relationship objects. 
 
-{task}
 """
 
 
