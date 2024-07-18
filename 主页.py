@@ -23,7 +23,7 @@ text_example = """CAMEL 是一个开源库,旨在研究自主和交流Agents。�
 """
 
 # Sidebar for API Key input
-openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
+openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password') or st.secrets["OPENAI_KEY"]
 
 # Initialize session state variables
 if 'text_query' not in st.session_state:

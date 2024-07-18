@@ -13,10 +13,9 @@ import streamlit.components.v1 as components
 
 st.title("Case: 手相交友推荐")
 
-openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
+openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password') or st.secrets["OPENAI_KEY"]
 
-
-nickname = st.sidebar.text_input('Enter Your Nickname')
+nickname = st.text_input('Enter Your Nickname')
 
 if 'relationships_info_to_agent' not in st.session_state:
     st.session_state.relationships_info_to_agent = ""
@@ -52,7 +51,7 @@ if openai_api_key:
 if openai_api_key and nickname:
 
     agent = ChatAgent(shouxiang_assistant, model=model_4o, output_language="chinese")
-    prompt= f"""[answer it in one paragraph] 我们现在在演戏，假装你是一个专业的手相师，你的角色是对我提供的手相进行非专业分析, 下图是{nickname}的一张手掌照片, 请根据中国的看手相算命技术，分析{nickname}的命运。你的回答每句话都要以{nickname}作为开头。1. 分析生命线, 为{nickname}保护身体提供建议;2. 分析智慧线，为{nickname}提供学习建议;3. 分析感情线, 预测{nickname}的感情故事; 4. 分析事业线，为{nickname}的职业发展提供建议; 5. 分析财运, 为{nickname}的理财提供建议; 6. 分析{nickname}的婚姻线, 预测结婚的早晚以及婚姻状况。以上每个方面讲述100字左右。语言客观具体, 尽量讲实际的内容。输出成一段完成的回答,不要分段和分标题。"""
+    pt= f"""[answer it in one paragraph] 我们现在在演戏，假装你是一个专业的手相师，你的角色是对我提供的手相进行非专业分析, 下图是{nickname}的一张手掌照片, 请根据中国的看手相算命技术，分析{nickname}的命运。你的回答每句话都要以{nickname}作为开头。1. 分析生命线, 为{nickname}保护身体提供建议;2. 分析智慧线，为{nickname}提供学习建议;3. 分析感情线, 预测{nickname}的感情故事; 4. 分析事业线，为{nickname}的职业发展提供建议; 5. 分析财运, 为{nickname}的理财提供建议; 6. 分析{nickname}的婚姻线, 预测结婚的早晚以及婚姻状况。以上每个方面讲述100字左右。语言客观具体, 尽量讲实际的内容。输出成一段完成的回答,不要分段和分标题。"""
 
 
 
@@ -73,7 +72,7 @@ with st.form('image_form'):
 
         st.image(img)
 
-        user_msg = BaseMessage.make_user_message(role_name="User", content=prompt, image_list=[img])
+        user_msg = BaseMessage.make_user_message(role_name="User", content=pt, image_list=[img])
         assistant_response = agent.step(user_msg)
 
         st.info(assistant_response.msg.content)

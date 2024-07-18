@@ -9,7 +9,7 @@ st.title("Case: 纸牌屋梳理")
 st.image('case1.png', caption='Knowledge Graph for House of Cards')
 
 # Sidebar for API Key input
-openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
+openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password') or st.secrets["OPENAI_KEY"]
 
 st.info("""Based on the relationship information provided, here are some insights:
 
