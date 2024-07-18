@@ -6,7 +6,6 @@ from camel.configs import ChatGPTConfig
 from camel.storages import Neo4jGraph
 from agents import KnowledgeGraphAgent, InsightAgent
 import streamlit.components.v1 as components
-from retrying import retry
 
 st.markdown("# 🐫 Knowledge Graph Agents")
 
@@ -70,10 +69,6 @@ if openai_api_key:
     # Agent setting
     kg_agent = KnowledgeGraphAgent(model=model_35)
     insight_agent = InsightAgent(model=model_4o)
-
-@retry(stop_max_attempt_number=3, wait_fixed=2000)
-def run_with_retry(element):
-    return kg_agent.run(element, parse_graph_elements=True)
 
 # Form for user input
 with st.form('my_form'):
