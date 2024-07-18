@@ -1,0 +1,5 @@
+camel-ai[all]==0.1.5.7
+torch==2.1.0
+streamlit
+pdf2image
+retrying
