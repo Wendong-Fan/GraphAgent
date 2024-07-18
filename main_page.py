@@ -6,7 +6,7 @@ from camel.configs import ChatGPTConfig
 from camel.storages import Neo4jGraph
 from kg_agent import KnowledgeGraphAgent, InsightAgent
 import streamlit.components.v1 as components
-
+from retrying import retry
 
 st.markdown("# 🐫 Knowledge Graph Agent")
 st.sidebar.markdown("# 🐫 Knowledge Graph Agent")
@@ -29,63 +29,50 @@ environments.
 """
 
 # Sidebar for API Key input
-openai_api_key = st.sidebar.text_input('OpenAI API Key')
+openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
 
 # Initialize session state variables
 if 'text_query' not in st.session_state:
-    st.session_state.text_query = "your question for the knowledge graph"
+    st.session_state.text_query = "Enter your question here"
 
 if 'relationships_info_to_agent' not in st.session_state:
     st.session_state.relationships_info_to_agent = ""
 
-def generate_response_from_text(input_text):
+if 'uploaded_file_path' not in st.session_state:
+    st.session_state.uploaded_file_path = ""
+
+if 'graph_elements' not in st.session_state:
+    st.session_state.graph_elements = []
+
+if 'iframe_rendered' not in st.session_state:
+    st.session_state.iframe_rendered = False
+
+if 'insight_agent' not in st.session_state:
+    st.session_state.insight_agent = False
+
+if openai_api_key:
     # Model setting
-    model = ModelFactory.create(
+    model_4o = ModelFactory.create(
+        model_platform=ModelPlatformType.OPENAI,
+        model_type=ModelType.GPT_4O,
+        model_config_dict=ChatGPTConfig().__dict__,
+        api_key=openai_api_key
+    )
+
+    model_35 = ModelFactory.create(
         model_platform=ModelPlatformType.OPENAI,
         model_type=ModelType.GPT_3_5_TURBO,
         model_config_dict=ChatGPTConfig().__dict__,
         api_key=openai_api_key
     )
-    
+
     # Agent setting
-    kg_agent = KnowledgeGraphAgent(model=model)
+    kg_agent = KnowledgeGraphAgent(model=model_35)
+    insight_agent = InsightAgent(model=model_4o)
 
-    # Create an element from the given text
-    element = uio.create_element_from_text(text=input_text)
-
-    # Run the KnowledgeGraphAgent to generate graph elements
-    graph_element = kg_agent.run(element, parse_graph_elements=True)
-
-    # Display the response
-    st.info(kg_agent.run(graph_element))
-
-    # Add the elements to the Neo4j database
-    n4j.add_graph_elements(graph_elements=[graph_element])
-
-    return graph_element
-
-def generate_response_from_file(input_element):
-    # Model setting
-    model = ModelFactory.create(
-        model_platform=ModelPlatformType.OPENAI,
-        model_type=ModelType.GPT_3_5_TURBO,
-        model_config_dict=ChatGPTConfig().__dict__,
-        api_key=openai_api_key
-    )
-    
-    # Agent setting
-    kg_agent = KnowledgeGraphAgent(model=model)
-
-    # Run the KnowledgeGraphAgent to generate graph elements
-    graph_element = kg_agent.run(input_element, parse_graph_elements=True)
-
-    # Display the response
-    st.info(kg_agent.run(graph_element))
-
-    # Add the elements to the Neo4j database
-    n4j.add_graph_elements(graph_elements=[graph_element])
-
-    return graph_element
+@retry(stop_max_attempt_number=3, wait_fixed=2000)
+def run_with_retry(element):
+    return kg_agent.run(element, parse_graph_elements=True)
 
 # Form for user input
 with st.form('my_form'):
@@ -93,70 +80,84 @@ with st.form('my_form'):
     submitted1 = st.form_submit_button('Submit File')
 
     if submitted1 and uploaded_file:
-        file_path = 'output.pdf'
-        with open(file_path, 'wb') as file:
+        st.session_state.uploaded_file_path = 'output.pdf'
+        with open(st.session_state.uploaded_file_path, 'wb') as file:
             file.write(uploaded_file.read())
-        elements = UnstructuredIO().parse_file_or_url(input_path="output.pdf")
+        elements = UnstructuredIO().parse_file_or_url(input_path=st.session_state.uploaded_file_path)
         chunks = UnstructuredIO().chunk_elements(
             chunk_type="chunk_by_title", elements=elements
         )
 
-    text = st.text_area('Enter text:', text_example)
+    text_input = st.text_area('Enter text:', text_example)
     submitted2 = st.form_submit_button('Submit Text')
 
     if not openai_api_key.startswith('sk-'):
         st.warning('Please enter your OpenAI API key!', icon='⚠')
-    
-    if submitted1 and openai_api_key.startswith('sk-'):
+
+    if (submitted1 or submitted2) and openai_api_key.startswith('sk-'):
+        graph_elements = []
+        if submitted1:
+            elements = UnstructuredIO().parse_file_or_url(input_path=st.session_state.uploaded_file_path)
+            chunks = UnstructuredIO().chunk_elements(
+                chunk_type="chunk_by_title", elements=elements
+            )
+        elif submitted2:
+            element = uio.create_element_from_text(text=text_input)
+            chunks = UnstructuredIO().chunk_elements(
+                chunk_type="chunk_by_title", elements=[element]
+            )
+
         for element in chunks:
-            graph_element = generate_response_from_file(element)
-            relationships_info = []
-            for relationship in graph_element.relationships:
-                info = f"Subject: {relationship.subj.id}, Object: {relationship.obj.id}, Type: {relationship.type}"
-                relationships_info.append(info)
+            try:
+                graph_element = kg_agent.run(element, parse_graph_elements=True)
+                n4j.add_graph_elements(graph_elements=[graph_element])
+                graph_elements.append(graph_element)
 
-        st.session_state.relationships_info_to_agent = "\n".join(relationships_info)
+                relationships_info = []
+                for relationship in graph_element.relationships:
+                    info = f"Subject: {relationship.subj.id}, Object: {relationship.obj.id}, Type: {relationship.type}"
+                    relationships_info.append(info)
+                    st.info(info)
 
-        components.iframe("https://workspace-preview.neo4j.io/workspace/query?ntid=google-oauth2%7C103072183927948648663", height=1000, width=1000)
+                st.session_state.relationships_info_to_agent = "\n".join(relationships_info)
 
-    if submitted2 and openai_api_key.startswith('sk-'):
-        generate_response_from_text(text)
+            except:
+                print("Connection failed")
+
+        st.session_state.graph_elements.extend(graph_elements)
+        st.session_state.iframe_rendered = True
 
     if submitted1 or submitted2:
-        # text_query = st.text_area('Enter query:', st.session_state.text_query)
-        # submitted3 = st.form_submit_button('Submit query')
-
-        # if submitted3 and text_query and st.session_state.relationships_info_to_agent:
-        model = ModelFactory.create(
-            model_platform=ModelPlatformType.OPENAI,
-            model_type=ModelType.GPT_4O,
-            model_config_dict=ChatGPTConfig().__dict__,
-            api_key=openai_api_key
-        )
-        # st.session_state.text_query = text_query
-        ans = InsightAgent(model=model).run(
-            relationship_info=st.session_state.relationships_info_to_agent,
-            query="Based on the relationship information below, analysis the information and give me some insights by using Chinese"
-        )
-        st.info(ans)
+        st.session_state.insight_agent = True
 
 
-if 'text_query' not in st.session_state:
-    st.session_state.text_query = "your question for the knowledge graph"
+# # Render stored relationships info and iframe
+# for element in st.session_state.graph_elements:
+#     for relationship in element.relationships:
+#         info = f"Subject: {relationship.subj.id}, Object: {relationship.obj.id}, Type: {relationship.type}"
+#         st.info(info)
 
-with st.form('my_form3'):
+
+if st.session_state.iframe_rendered:
+    components.iframe("https://workspace-preview.neo4j.io/workspace/query?ntid=google-oauth2%7C103072183927948648663", height=1000, width=1000)
+
+
+if st.session_state.insight_agent:
+    ans = insight_agent.run(
+        relationship_info=st.session_state.relationships_info_to_agent,
+        query="Based on the relationship information below, analyze the information and give me some insights using the language same with the information I provided to you."
+    )
+    st.info(ans)
+
+
+with st.form('query_form'):
     text_query = st.text_area('Enter query:', st.session_state.text_query)
-    submitted3 = st.form_submit_button('Submit query')
+    submitted3 = st.form_submit_button('Submit Query')
+
     if submitted3 and openai_api_key.startswith('sk-'):
-        model = ModelFactory.create(
-            model_platform=ModelPlatformType.OPENAI,
-            model_type=ModelType.GPT_4O,
-            model_config_dict=ChatGPTConfig().__dict__,
-            api_key=openai_api_key
-        )
-        st.session_state.text_query = text_query
-        ans = InsightAgent(model=model).run(
+        
+        ans = insight_agent.run(
             relationship_info=st.session_state.relationships_info_to_agent,
-            query=st.session_state.text_query
+            query=f"Based on the relationship information below, answer question: {text_query}"
         )
         st.info(ans)
