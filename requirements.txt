@@ -3,3 +3,4 @@ torch==2.1.0
 streamlit
 pdf2image
 retrying
+unstructured[all-docs]==0.10.30
