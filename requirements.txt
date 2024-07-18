@@ -2,4 +2,4 @@ camel-ai[all]==0.1.5.7
 streamlit
 pdf2image
 retrying
-unstructured[all-docs]==0.14.10
+unstructured[all-docs]
