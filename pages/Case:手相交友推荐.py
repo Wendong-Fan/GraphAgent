@@ -11,6 +11,7 @@ from camel.agents import KnowledgeGraphAgent
 from agents import InsightAgent
 import streamlit.components.v1 as components
 
+st.title("Case: 手相交友推荐")
 
 openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
 
@@ -101,10 +102,8 @@ with st.form('image_form'):
 
         components.iframe("https://workspace-preview.neo4j.io/workspace/query?ntid=google-oauth2%7C103072183927948648663", height=1000, width=1000)
 
-
         ans = insight_agent.run(
             relationship_info=st.session_state.relationships_info_to_agent,
             query=f"Based on the relationship information below, analyze the information and give me some insights who can be {nickname}'s friend and give me reason, then answer should be in Chinese"
         )
         st.info(ans)
-
