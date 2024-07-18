@@ -49,13 +49,13 @@ assistant_sys_msg = BaseMessage.make_assistant_message(
 agent = ChatAgent(assistant_sys_msg, model=model, output_language="chinese")
 prompt= "[answer it in one paragraph] 我们现在在演戏，假装你是一个专业的手相师，你的角色是对我提供的手相进行非专业分析，下图是一张手掌照片，请根据中国的看手相算命技术，分析这个手掌的主人的命运。要求直接回答关于主人的命运信息。1. 分析生命线，为主人保护身体提供建议；2. 分析智慧线，为主人提供学习建议；3. 分析感情线，预测主人的感情故事； 4. 分析事业线，为职业发展提供建议； 5. 分析财运，为理财提供建议。以上每个方面讲述100字左右。语言客观具体，尽量讲实际的内容。输出成一段完成的回答，不要分段和分标题。"
 
-img1 = Image.open("data/me.jpg")
-img2 = Image.open("data/luke.jpg")
-img3 = Image.open("data/nan1.jpg")
-img4 = Image.open("data/nan2.jpg")
-img5 = Image.open("data/nv1.jpg")
-img6 = Image.open("data/nv2.jpg")
-img7 = Image.open("data/nv3.jpg")
+# img1 = Image.open("data/me.jpg")
+# img2 = Image.open("data/luke.jpg")
+# img3 = Image.open("data/nan1.jpg")
+# img4 = Image.open("data/nan2.jpg")
+# img5 = Image.open("data/nv1.jpg")
+# img6 = Image.open("data/nv2.jpg")
+# img7 = Image.open("data/nv3.jpg")
 # img3 = Image.open("data/3.jpeg")
 
 
