@@ -2,13 +2,15 @@ import streamlit as st
 from camel.types import ModelPlatformType, ModelType
 from camel.models import ModelFactory
 from camel.configs import ChatGPTConfig
-from kg_agent import  InsightAgent
+from agents import  InsightAgent
 
 
 st.title("House of Cards")
 
 st.image('/Users/enrei/Desktop/adventureX2024/GraphAgent/case1.png', caption='Knowledge Graph for House of Cards')
 
+# Sidebar for API Key input
+openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
 
 st.info("""Based on the relationship information provided, here are some insights:
 
@@ -43,7 +45,7 @@ model = ModelFactory.create(
     model_platform=ModelPlatformType.OPENAI,
     model_type=ModelType.GPT_4O,
     model_config_dict=ChatGPTConfig().__dict__,
-    api_key="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"
+    api_key=openai_api_key
 )
 
 

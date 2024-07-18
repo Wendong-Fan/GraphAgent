@@ -4,7 +4,7 @@ from camel.models import ModelFactory
 from camel.loaders import UnstructuredIO
 from camel.configs import ChatGPTConfig
 from camel.storages import Neo4jGraph
-from kg_agent import KnowledgeGraphAgent, InsightAgent
+from agents import KnowledgeGraphAgent, InsightAgent
 import streamlit.components.v1 as components
 from retrying import retry
 
@@ -129,13 +129,6 @@ with st.form('my_form'):
 
     if submitted1 or submitted2:
         st.session_state.insight_agent = True
-
-
-# # Render stored relationships info and iframe
-# for element in st.session_state.graph_elements:
-#     for relationship in element.relationships:
-#         info = f"Subject: {relationship.subj.id}, Object: {relationship.obj.id}, Type: {relationship.type}"
-#         st.info(info)
 
 
 if st.session_state.iframe_rendered:
