@@ -1,4 +1,3 @@
 camel-ai[all]==0.1.5.7
 streamlit
-opencv-python-headless
-opencv-contrib-python
+opencv-contrib-python-headless
