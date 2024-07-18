@@ -4,3 +4,4 @@ streamlit
 pdf2image
 retrying
 unstructured[all-docs]
+cv2
