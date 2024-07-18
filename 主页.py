@@ -10,10 +10,7 @@ from retrying import retry
 
 st.markdown("# 🐫 Knowledge Graph Agents")
 
-# Set Neo4j instance
-n4j = Neo4jGraph(
-    url="neo4j+s://5af77aab.databases.neo4j.io", username="neo4j", password="SEK_Fx5Bx-BkRwMx6__zM_TOPqXLWEP-czuIZ_u7-zE"
-)
+
 
 # Initialize UnstructuredIO instance
 uio = UnstructuredIO()
@@ -24,6 +21,16 @@ text_example = """CAMEL 是一个开源库,旨在研究自主和交流Agents。�
 
 # Sidebar for API Key input
 openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password') or st.secrets["OPENAI_KEY"]
+
+url = st.sidebar.text_input('Neo4j URL', type='password') or st.secrets["URL"]
+username = st.sidebar.text_input('Neo4j Username', type='password') or st.secrets["USERNAME"]
+password = st.sidebar.text_input('Neo4j Password', type='password') or st.secrets["PASSWORD"]
+
+# Set Neo4j instance
+n4j = Neo4jGraph(
+    url=url, username=username, password=password
+)
+
 
 # Initialize session state variables
 if 'text_query' not in st.session_state:

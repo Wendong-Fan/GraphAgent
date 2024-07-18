@@ -55,9 +55,13 @@ if openai_api_key and nickname:
 
 
 
+url = st.sidebar.text_input('Neo4j URL', type='password') or st.secrets["URL"]
+username = st.sidebar.text_input('Neo4j Username', type='password') or st.secrets["USERNAME"]
+password = st.sidebar.text_input('Neo4j Password', type='password') or st.secrets["PASSWORD"]
+
 # Set Neo4j instance
 n4j = Neo4jGraph(
-    url="neo4j+s://5af77aab.databases.neo4j.io", username="neo4j", password="SEK_Fx5Bx-BkRwMx6__zM_TOPqXLWEP-czuIZ_u7-zE"
+    url=url, username=username, password=password
 )
 
 # Initialize UnstructuredIO instance
