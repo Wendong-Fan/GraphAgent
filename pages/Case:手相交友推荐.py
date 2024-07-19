@@ -72,11 +72,15 @@ with st.form('image_form'):
     submitted1 = st.form_submit_button('Submit File')
 
     if uploaded_file and submitted1:
-        img = Image.open(uploaded_file)
+        # Convert MPO to a supported format (e.g., JPEG)
+        with Image.open(uploaded_file) as img:
+            # Save the first frame of the MPO image as a JPEG
+            img.convert("RGB").save("converted_image.jpg", "JPEG")
+        converted_img = Image.open("converted_image.jpg")
 
-        st.image(img)
+        st.image(converted_img)
 
-        user_msg = BaseMessage.make_user_message(role_name="User", content=pt, image_list=[img])
+        user_msg = BaseMessage.make_user_message(role_name="User", content=pt, image_list=[converted_img])
         assistant_response = agent.step(user_msg)
 
         st.info(assistant_response.msg.content)
