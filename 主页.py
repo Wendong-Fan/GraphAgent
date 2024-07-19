@@ -15,7 +15,7 @@ st.markdown("# 🐫 Knowledge Graph Agents")
 uio = UnstructuredIO()
 
 # Initial text_example value
-text_example = """CAMEL 是一个开源库,旨在研究自主和交流Agents。我们相信大规模研究这些Agents可以为其行为、能力和潜在风险提供有价值的见解。为了促进该领域的研究,我们实现并支持各种类型的Agents、任务、提示、模型和模拟环境。
+text_example = """CAMEL is an open-source library designed for the study of autonomous and communicative agents. We believe that studying these agents on a large scale offers valuable insights into their behaviors, capabilities, and potential risks. To facilitate research in this field, we implement and support various types of agents, tasks, prompts, models, and simulated environments.
 """
 
 # Sidebar for API Key input
